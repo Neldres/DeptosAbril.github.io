@@ -1,0 +1,265 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(120deg, #a8edea, #fed6e3);
+  color: #333;
+}
+
+header {
+  background-color: #ff8a80;
+  color: white;
+  text-align: center;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+main {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+.casa h2 {
+  color: #ff7043;
+  text-align: center;
+}
+
+.precio {
+  font-weight: bold;
+  color: #2e7d32;
+  margin-bottom: 1rem;
+}
+
+.departamento {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 640px; /* más ancho en PC para carruseles más grandes */
+  padding: 1rem;
+  margin: 1rem 0;
+  text-align: center;
+  position: relative;
+}
+
+/* Carrusel */
+.carrusel {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  aspect-ratio: 16/9; /* mantiene proporción responsiva en escritorio y móvil */
+  max-height: 520px; /* evita que sea demasiado alto en pantallas grandes */
+  background-color: #f4f6f8; /* fondo que aparece en las zonas sobrantes */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Fondo difuminado detrás de la imagen (se actualiza por JS con la misma imagen) */
+.carrusel .carrusel-bg {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  filter: blur(14px) brightness(0.6);
+  transform: scale(1.06);
+  z-index: 1;
+  border-radius: inherit;
+}
+
+@media (min-width: 1200px) {
+  .departamento {
+    max-width: 720px; /* aún más grande en pantallas muy anchas */
+  }
+  .carrusel {
+    max-height: 640px;
+  }
+}
+
+/* Breakpoints: usar proporciones diferentes según ancho de pantalla */
+@media (max-width: 900px) {
+  .carrusel {
+    aspect-ratio: 4/3; /* tablets / pantallas medianas: cuadro un poco más alto */
+    max-height: 360px;
+  }
+  .departamento {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 600px) {
+  .carrusel {
+    aspect-ratio: 3/4; /* móviles: cuadro vertical/pseudo-vertical */
+    max-height: none;
+  }
+  .departamento {
+    max-width: 360px;
+  }
+}
+
+.carrusel img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain; /* muestra la imagen completa y deja espacio de fondo */
+  display: none;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  position: relative;
+  z-index: 2; /* encima del fondo difuminado */
+}
+
+/* Visor (modal) para zoom y arrastre */
+.visor {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.visor[aria-hidden="false"] { display:flex; }
+.visor-close {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 10010;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  font-size: 28px;
+  line-height: 28px;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.visor-content {
+  max-width: 95%;
+  max-height: 90%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none; /* para manejar gestos manualmente */
+}
+.visor-content img {
+  max-width: 100%;
+  max-height: 100%;
+  will-change: transform;
+  cursor: grab;
+  transition: transform 120ms linear;
+  user-select: none;
+}
+.visor-content img:active { cursor: grabbing; }
+
+/* Fondo difuminado específico para el visor (se actualiza por JS) */
+.visor .visor-bg {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  filter: blur(18px) brightness(0.35);
+  transform: scale(1.06);
+  z-index: 9990;
+}
+
+/* Controles de zoom en el visor */
+.visor-controls {
+  position: fixed;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10011;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.visor-btn {
+  background: rgba(255,255,255,0.08);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 8px 14px;
+  font-size: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.visor-btn:active { transform: translateY(1px); }
+.visor-range {
+  width: 220px;
+  appearance: none;
+  height: 6px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 6px;
+}
+.visor-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  padding: 10px;
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  background-color: rgba(0,0,0,0.6);
+  border: none;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  z-index: 10; /* asegurar que las flechas estén por encima de la imagen */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.prev { left: 10px; }
+.next { right: 10px; }
+
+.reserva {
+  padding: 2rem;
+  text-align: center;
+}
+
+iframe {
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+footer {
+  background-color: #ff8a80;
+  color: white;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+footer a {
+  color: white;
+  font-weight: bold;
+  text-decoration: underline;
+}
+/* Efecto fade-in */
+.carrusel img.mostrar {
+  display: block;
+  opacity: 1;
+}
+
+/* Indicador de número de imagen */
+.indicador {
+  text-align: center;
+  margin-top: 5px;
+  font-size: 0.9rem;
+  color: #333;
+}
